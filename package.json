@@ -1,0 +1,42 @@
+{
+  "name": "pancakeswap-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PancakeSwap-specific AI tools (skills, plugins, agents) for developers and AI agents integrating the PancakeSwap ecosystem.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.x",
+    "npm": ">=11.7.0"
+  },
+  "workspaces": [
+    "packages/plugins/*"
+  ],
+  "scripts": {
+    "format": "npx nx format:write",
+    "format:check": "npx nx format:check",
+    "lint": "npx nx run-many --target=lint --all",
+    "typecheck": "npx nx run-many --target=typecheck --all",
+    "test": "node tests/helpers.test.mjs",
+    "test:unit": "node tests/helpers.test.mjs",
+    "test:evals": "npx promptfoo eval --config evals/suites/swap-integration/promptfoo.yaml && npx promptfoo eval --config evals/suites/swap-planner/promptfoo.yaml",
+    "test:evals:swap-integration": "npx promptfoo eval --config evals/suites/swap-integration/promptfoo.yaml",
+    "test:evals:swap-planner": "npx promptfoo eval --config evals/suites/swap-planner/promptfoo.yaml",
+    "test:evals:view": "npx promptfoo view",
+    "validate:plugins": "node scripts/validate-plugin.cjs",
+    "docs:lint": "vale docs/",
+    "prepare": "node scripts/prepare.cjs"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.72.1",
+    "@nx/eslint": "^22.0.2",
+    "@nx/jest": "^22.0.2",
+    "@nx/js": "^22.0.2",
+    "eslint": "^9.33.0",
+    "markdownlint-cli2": "^0.17.2",
+    "nx": "^22.0.2",
+    "prettier": "^2.6.2",
+    "promptfoo": "^0.120.22",
+    "typescript": "^5.9.3",
+    "vitepress": "^1.6.4"
+  }
+}

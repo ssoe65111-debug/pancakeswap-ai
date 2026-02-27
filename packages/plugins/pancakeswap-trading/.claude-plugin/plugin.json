@@ -1,0 +1,14 @@
+{
+  "name": "pancakeswap-trading",
+  "version": "1.0.0",
+  "description": "Integrate PancakeSwap swaps via Smart Router SDK, Universal Router SDK, or direct smart contract calls",
+  "author": {
+    "name": "PancakeSwap",
+    "email": "chef.sanji@pancakeswap.com"
+  },
+  "homepage": "https://github.com/pancakeswap/pancakeswap-ai",
+  "keywords": ["pancakeswap", "swap", "defi", "smart-router", "universal-router", "permit2", "bsc", "bnb"],
+  "license": "MIT",
+  "skills": ["./skills/swap-integration"],
+  "agents": ["./agents/swap-integration-expert.md"]
+}

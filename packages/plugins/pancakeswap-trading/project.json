@@ -1,0 +1,22 @@
+{
+  "name": "pancakeswap-trading",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/plugins/pancakeswap-trading",
+  "tags": ["type:plugin"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["packages/plugins/pancakeswap-trading/**/*.md"]
+      }
+    },
+    "validate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/validate-plugin.cjs",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

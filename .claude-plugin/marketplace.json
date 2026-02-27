@@ -1,0 +1,24 @@
+{
+  "name": "pancakeswap-ai",
+  "version": "1.0.0",
+  "owner": {
+    "name": "PancakeSwap",
+    "email": "chef.sanji@pancakeswap.com"
+  },
+  "metadata": {
+    "description": "PancakeSwap-specific AI tools (skills, plugins, agents) for developers and AI agents integrating the PancakeSwap ecosystem.",
+    "repository": "https://github.com/pancakeswap/pancakeswap-ai"
+  },
+  "plugins": [
+    {
+      "name": "pancakeswap-trading",
+      "source": "./packages/plugins/pancakeswap-trading",
+      "description": "Integrate PancakeSwap swaps via Smart Router SDK, Universal Router, and direct contract calls"
+    },
+    {
+      "name": "pancakeswap-driver",
+      "source": "./packages/plugins/pancakeswap-driver",
+      "description": "AI-powered assistance for discovering tokens and planning PancakeSwap swaps with deep links"
+    }
+  ]
+}
