@@ -7,7 +7,7 @@
     "email": "chef.sanji@pancakeswap.com"
   },
   "homepage": "https://github.com/pancakeswap/pancakeswap-ai",
-  "keywords": ["pancakeswap", "swap", "defi", "deep-links", "token-discovery", "bsc", "bnb", "cake"],
+  "keywords": ["pancakeswap", "swap", "liquidity", "lp", "defi", "deep-links", "token-discovery", "bsc", "bnb", "cake"],
   "license": "MIT",
-  "skills": ["./skills/swap-planner"]
+  "skills": ["./skills/swap-planner", "./skills/liquidity-planner"]
 }

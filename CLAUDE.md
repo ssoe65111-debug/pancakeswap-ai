@@ -21,7 +21,8 @@ pancakeswap-ai/
 ├── packages/
 │   └── plugins/              # Claude Code plugins
 │       ├── pancakeswap-trading/   # Swap integration skill + expert agent
-│       └── pancakeswap-driver/    # Swap planner (deep links) skill
+│       └── pancakeswap-driver/    # Swap planner + liquidity planner skills
+│       └── pancakeswap-infinity/  # Infinity (v4) hook security foundations
 ├── scripts/
 │   └── validate-plugin.cjs   # Plugin validation
 ├── CLAUDE.md                 # This file (also symlinked as AGENTS.md)
@@ -50,14 +51,27 @@ claude plugin add @pancakeswap/pancakeswap-trading
 
 ### pancakeswap-driver
 
-**Purpose:** Plan swaps and generate deep links to the PancakeSwap interface.
+**Purpose:** Plan swaps and liquidity positions, generate deep links to the PancakeSwap interface.
 
 **Skills:**
 - `swap-planner` — Discover tokens, verify contracts, fetch prices, and generate pancakeswap.finance deep links.
+- `liquidity-planner` — Plan LP positions (V2, V3, StableSwap), assess pool liquidity/APY, recommend fee tiers and price ranges, generate liquidity deep links.
 
 **Install:**
 ```bash
 claude plugin add @pancakeswap/pancakeswap-driver
+```
+
+### pancakeswap-infinity
+
+**Purpose:** Security-first AI tools for developing PancakeSwap Infinity (v4) hooks.
+
+**Skills:**
+- `infinity-security-foundations` — Threat models, permission flags risk matrix, delta accounting, access control patterns, vulnerability catalog, audit checklists, and base hook templates for CL and Bin pool hooks.
+
+**Install:**
+```bash
+claude plugin add @pancakeswap/pancakeswap-infinity
 ```
 
 ## Development
