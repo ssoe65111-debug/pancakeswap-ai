@@ -16,13 +16,16 @@ pancakeswap-ai/
 │   ├── promptfoo.yaml        # Root eval config
 │   ├── rubrics/              # Shared evaluation rubrics
 │   └── suites/               # Per-skill eval suites
-│       ├── swap-integration/ # pancakeswap-trading skill evals
-│       └── swap-planner/     # pancakeswap-driver skill evals
+│       ├── swap-integration/   # pancakeswap-trading skill evals
+│       ├── swap-planner/       # pancakeswap-driver skill evals
+│       ├── farming-planner/    # pancakeswap-farming skill evals
+│       └── infinity-security-foundations/  # pancakeswap-infinity skill evals
 ├── packages/
 │   └── plugins/              # Claude Code plugins
 │       ├── pancakeswap-trading/   # Swap integration skill + expert agent
-│       └── pancakeswap-driver/    # Swap planner + liquidity planner skills
-│       └── pancakeswap-infinity/  # Infinity (v4) hook security foundations
+│       ├── pancakeswap-driver/    # Swap planner + liquidity planner skills
+│       ├── pancakeswap-infinity/  # Infinity (v4) hook security foundations
+│       └── pancakeswap-farming/   # Farming planner (CAKE staking, yield farms, veCAKE)
 ├── scripts/
 │   └── validate-plugin.cjs   # Plugin validation
 ├── CLAUDE.md                 # This file (also symlinked as AGENTS.md)
@@ -72,6 +75,18 @@ claude plugin add @pancakeswap/pancakeswap-driver
 **Install:**
 ```bash
 claude plugin add @pancakeswap/pancakeswap-infinity
+```
+
+### pancakeswap-farming
+
+**Purpose:** Plan yield farming, CAKE staking, and reward harvesting on PancakeSwap.
+
+**Skills:**
+- `farming-planner` — Discover active farms, compare APR/APY, plan CAKE staking (Syrup Pools, veCAKE), LP farming strategies, and generate deep links to PancakeSwap farming UI.
+
+**Install:**
+```bash
+claude plugin add @pancakeswap/pancakeswap-farming
 ```
 
 ## Development
@@ -132,6 +147,9 @@ npx promptfoo eval --config evals/suites/swap-integration/promptfoo.yaml
 
 # Run swap-planner evals
 npx promptfoo eval --config evals/suites/swap-planner/promptfoo.yaml
+
+# Run farming-planner evals
+npx promptfoo eval --config evals/suites/farming-planner/promptfoo.yaml
 
 # View results
 npx promptfoo view
