@@ -6,7 +6,7 @@ AI-powered assistance for discovering PancakeSwap farms, staking CAKE, and manag
 
 ### farming-planner
 
-Plan yield farming strategies on PancakeSwap by discovering active farms, comparing APR/APY, managing CAKE staking (flexible/fixed-term), Syrup Pools, and veCAKE gauge voting. Generates deep links to the PancakeSwap farming UI.
+Plan yield farming strategies on PancakeSwap by discovering active farms, comparing APR/APY, managing CAKE staking (flexible/fixed-term), and Syrup Pools. Generates deep links to the PancakeSwap farming UI.
 
 ## Installation
 

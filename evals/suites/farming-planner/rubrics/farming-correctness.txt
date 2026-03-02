@@ -2,7 +2,7 @@ Evaluate whether the response correctly plans a PancakeSwap farming or staking s
 
 1. Strategy Recommendation
    - Does the response identify the right farming/staking option for the user's situation?
-   - Does it explain the differences between options (V2 farms, V3 farms, Infinity farms, Syrup Pools, veCAKE)?
+   - Does it explain the differences between options (V2 farms, V3 farms, Infinity farms, Syrup Pools)?
    - Does it recommend an appropriate strategy based on the user's holdings and goals?
 
 2. Deep Link Generation
@@ -17,12 +17,11 @@ Evaluate whether the response correctly plans a PancakeSwap farming or staking s
 
 4. Risk Warnings
    - Does it warn about impermanent loss for LP farming?
-   - Does it mention lock-up periods for veCAKE?
    - Does it caution about CAKE price risk for reward valuation?
    - Does it advise against using private keys in scripts for mainnet?
 
 5. Contract Accuracy
-   - Are contract addresses correct (CAKE, MasterChef, veCAKE, CampaignManager)?
+   - Are contract addresses correct (CAKE, MasterChef, CampaignManager)?
    - Is the chain context correct (V2 farms BSC-only, etc.)?
 
 Score 1.0 if all 5 areas fully addressed, 0.85 if mostly correct with minor gaps, 0.7 if partial.

@@ -31,7 +31,7 @@ features:
     link: /skills/infinity-security-foundations
   - icon: 🌾
     title: Farming Planner
-    details: Discover farms, compare APR/APY, plan CAKE staking and veCAKE strategies, and generate deep links to the farming UI.
+    details: Discover farms, compare APR/APY, plan CAKE staking strategies, and generate deep links to the farming UI.
     link: /skills/farming-planner
   - icon: 🧪
     title: LLM Evaluations

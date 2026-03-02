@@ -1,6 +1,6 @@
 ---
 name: farming-planner
-description: Plan yield farming and CAKE staking on PancakeSwap. Use when user says "farm on pancakeswap", "stake CAKE", "unstake CAKE", "stake LP", "unstake LP", "yield farming", "syrup pool", "pancakeswap farm", "earn CAKE", "farm APR", "veCAKE", "harvest rewards", "deposit LP", "withdraw LP", or describes wanting to stake, unstake, or earn yield on PancakeSwap.
+description: Plan yield farming and CAKE staking on PancakeSwap. Use when user says "farm on pancakeswap", "stake CAKE", "unstake CAKE", "stake LP", "unstake LP", "yield farming", "syrup pool", "pancakeswap farm", "earn CAKE", "farm APR", "harvest rewards", "deposit LP", "withdraw LP", or describes wanting to stake, unstake, or earn yield on PancakeSwap.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(curl:*), Bash(jq:*), Bash(cast:*), Bash(python3:*), Bash(node:*), Bash(xdg-open:*), Bash(open:*), WebFetch, WebSearch, Task(subagent_type:Explore), AskUserQuestion
 model: sonnet
 license: MIT
@@ -28,15 +28,13 @@ Route to the correct section based on what the user wants:
 | "unstake LP" / "withdraw LP from farm"          | Unstake LP Tokens     | Deep link + cast examples        |
 | "stake CAKE" / "syrup pool"                     | Stake CAKE            | Deep link to Syrup Pools         |
 | "harvest" / "claim rewards" / "pending rewards" | Harvest Rewards       | cast command + deep link         |
-| "veCAKE" / "boost" / "gauge voting"             | veCAKE & Gauge Voting | Deep link to cake-staking        |
 
 | User Wants...                  | Best Recommendation                                |
 | ------------------------------ | -------------------------------------------------- |
-| Passive CAKE yield, no IL      | CAKE staking (Syrup Pool) or veCAKE lock           |
-| Highest APR, willing to manage | V3 Farm with tight range + bCAKE boost             |
+| Passive CAKE yield, no IL      | CAKE staking (Syrup Pool)                          |
+| Highest APR, willing to manage | V3 Farm with tight range                           |
 | Set-and-forget farming         | V2 Farm (full range, no rebalancing needed)        |
 | Earn partner tokens            | Syrup Pools                                        |
-| Governance + revenue share     | veCAKE lock + gauge voting                         |
 | Stablecoin yield, minimal risk | USDT-USDC StableSwap LP farm                       |
 
 ---
@@ -146,8 +144,7 @@ For Infinity, you need the `poolId` (bytes32 hash) from the CampaignManager cont
 | V3 Farms              | `https://pancakeswap.finance/farms?chain=bsc&type=v3`        |
 | Infinity Farms        | `https://pancakeswap.finance/liquidity/pools?type=1`         |
 | Syrup Pools           | `https://pancakeswap.finance/pools`                          |
-| CAKE Staking / veCAKE | `https://pancakeswap.finance/cake-staking`                   |
-| Gauge Voting          | `https://pancakeswap.finance/gauges-voting`                  |
+| CAKE Staking          | `https://pancakeswap.finance/cake-staking`                   |
 
 ### Chain Keys
 
@@ -179,9 +176,6 @@ Or use the farms page with search: `https://pancakeswap.finance/farms?chain=bsc&
 | Distributor         | `0xEA8620aAb2F07a0ae710442590D649ADE8440877` | Infinity farm CAKE reward claims   |
 | CAKE Token          | `0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82` | CAKE ERC-20 token                  |
 | PositionManager v3  | `0x46A15B0b27311cedF172AB29E4f4766fbE7F4364` | V3 NFT position manager            |
-| veCAKE              | `0x5692DB8177a81A6c6afc8084C2976C9933EC1bAB` | Vote-escrowed CAKE                 |
-| GaugeVoting         | `0xf81953dC234cdEf1D6D0d3ef61b232C6bCbF9aeF` | Gauge vote allocation              |
-| RevenueSharingGateway | `0x011f2a82846a4E9c62C2FC4Fd6fDbad19147D94A` | Unified claiming gateway         |
 
 ---
 
@@ -719,35 +713,6 @@ https://pancakeswap.finance/farms?chain=bsc
 
 ---
 
-## veCAKE & Gauge Voting
-
-Users lock CAKE for a period to receive veCAKE, which grants:
-- **Gauge voting power** — direct CAKE emissions to preferred farms
-- **Revenue sharing** — earn a portion of PancakeSwap protocol revenue
-- **bCAKE boost** — up to 2.5x multiplier on farm APR
-
-### Deep Links
-
-```
-# Lock CAKE for veCAKE
-https://pancakeswap.finance/cake-staking
-
-# Gauge voting
-https://pancakeswap.finance/gauges-voting
-```
-
-### bCAKE Farm Boost
-
-| veCAKE Holding | Typical Boost | Notes                   |
-| -------------- | ------------- | ----------------------- |
-| Small (<100)   | 1.0x–1.2x    | Minimal boost           |
-| Medium (1K+)   | 1.2x–1.8x    | Noticeable APR increase |
-| Large (10K+)   | 1.8x–2.5x    | Near-maximum boost      |
-
-Maximum boost: 2.5x for V2 farms, 2.0x for V3 positions.
-
----
-
 ## Output Templates
 
 ::: danger MANDATORY OUTPUT RULE
@@ -774,13 +739,12 @@ Use this format when listing multiple farms. The **Deep Link** column is mandato
 **Strategy:** Stake WBNB-CAKE LP in V3 Farm
 **Chain:** BNB Smart Chain
 **Pool:** WBNB / CAKE (0.25% fee tier)
-**Farm APR:** ~45% (base) + up to 2x with bCAKE boost
+**Farm APR:** ~45%
 **Reward:** CAKE
 
 ### Steps
 1. Add liquidity: https://pancakeswap.finance/add/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/2500?chain=bsc&persistChain=1
 2. Stake in farm: https://pancakeswap.finance/farms?chain=bsc&type=v3
-3. (Optional) Lock CAKE for bCAKE boost: https://pancakeswap.finance/cake-staking
 
 ### Risks
 - Impermanent loss if BNB/CAKE price ratio changes significantly
@@ -811,7 +775,6 @@ Use this format when listing multiple farms. The **Deep Link** column is mandato
 | V3 Farms       | V3           | Stake V3 NFT positions in MasterChef v3, earn CAKE per block  | CAKE    |
 | Infinity Farms | Infinity     | Provide liquidity, CAKE allocated per epoch (8h) via Merkle   | CAKE    |
 | Syrup Pools    | —            | Stake CAKE to earn partner tokens or more CAKE                | Various |
-| veCAKE Staking | —            | Lock CAKE for veCAKE, earn revenue share + gauge voting power | CAKE    |
 
 ## Supported Chains
 
