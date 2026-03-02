@@ -24,7 +24,7 @@ pancakeswap-ai/
 │   └── plugins/              # Claude Code plugins
 │       ├── pancakeswap-driver/    # Swap planner + liquidity planner skills
 │       ├── pancakeswap-infinity/  # Infinity (v4) hook security foundations
-│       └── pancakeswap-farming/   # Farming planner (CAKE staking, yield farms, veCAKE)
+│       └── pancakeswap-farming/   # Farming planner (CAKE staking, yield farms)
 ├── scripts/
 │   └── validate-plugin.cjs   # Plugin validation
 ├── CLAUDE.md                 # This file (also symlinked as AGENTS.md)
@@ -66,7 +66,7 @@ claude plugin add @pancakeswap/pancakeswap-infinity
 **Purpose:** Plan yield farming, CAKE staking, and reward harvesting on PancakeSwap.
 
 **Skills:**
-- `farming-planner` — Discover active farms, compare APR/APY, plan CAKE staking (Syrup Pools, veCAKE), LP farming strategies, and generate deep links to PancakeSwap farming UI.
+- `farming-planner` — Discover active farms, compare APR/APY, plan CAKE staking (Syrup Pools), LP farming strategies, and generate deep links to PancakeSwap farming UI.
 
 **Install:**
 ```bash

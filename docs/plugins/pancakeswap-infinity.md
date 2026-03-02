@@ -24,7 +24,6 @@ A comprehensive security guide for building hooks on PancakeSwap Infinity, cover
 - **NoOp Rug Pull Attack** — The classic hook attack pattern and how to prevent it
 - **Delta Accounting Security** — Ensuring hooks settle all deltas correctly
 - **Access Control** — Pool-only, owner-only, and time-locked patterns
-- **veCAKE Integration** — Governance-weight checks for hooks
 - **Gas Budgeting** — Per-callback gas limits to avoid griefing
 - **Audit Checklist** — Step-by-step review for pre-deployment
 - **Base Templates** — CL and Bin pool hook starters with security built in

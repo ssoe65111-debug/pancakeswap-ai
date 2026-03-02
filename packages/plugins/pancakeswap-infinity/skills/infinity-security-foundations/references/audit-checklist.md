@@ -306,14 +306,6 @@ if (data.length < 32) revert InvalidHookData();
   - [ ] Permission bitmap changes properly tracked
   - [ ] Legacy pool data handled (if versioning supported)
 
-### veCAKE Integration (if applicable)
-
-- [ ] **Staking Rewards Hooks**
-  - [ ] veCAKE balance checked, not assumed
-  - [ ] Delegation state properly reflected
-  - [ ] Reward distribution audited for fairness
-  - [ ] No double-counting of stake positions
-
 ---
 
 ## 8. Upgrade Safety
@@ -361,7 +353,6 @@ require(hook == poolKey.hooks, "Hook mismatch");
 - [ ] **Integration Tests**
   - [ ] Multi-step operations (swap + callback)
   - [ ] Multiple hooks on same pool
-  - [ ] veCAKE integration (if applicable)
 
 - [ ] **Isolation Tests**
   - [ ] All tests run with `forge test --isolate`

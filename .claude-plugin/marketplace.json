@@ -23,7 +23,7 @@
     {
       "name": "pancakeswap-farming",
       "source": "./packages/plugins/pancakeswap-farming",
-      "description": "Plan yield farming, CAKE staking, veCAKE, and reward harvesting with deep links to the PancakeSwap farming UI"
+      "description": "Plan yield farming, CAKE staking, and reward harvesting with deep links to the PancakeSwap farming UI"
     }
   ]
 }

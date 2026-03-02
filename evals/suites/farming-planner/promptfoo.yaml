@@ -39,7 +39,6 @@ tests:
         value:
           - 'pancakeswap.finance/cake-staking'
           - 'pancakeswap.finance/pools'
-          - 'veCAKE'
       - type: contains-any
         value:
           - '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82'
@@ -63,22 +62,135 @@ tests:
           - 'IL'
           - 'risk'
 
-  # Test 3: veCAKE and gauge voting
+  # Test 3: Farm discovery (find best farms)
   - vars:
-      case_content: file://cases/vecake-gauges.md
+      case_content: file://cases/farm-discovery.md
     assert:
       - type: llm-rubric
-        value: file://rubrics/farming-correctness.txt
-        threshold: 0.8
+        value: file://rubrics/farm-discovery-correctness.txt
+        threshold: 0.85
         provider: anthropic:claude-sonnet-4-5-20250929
       - type: contains-any
         value:
-          - 'veCAKE'
-          - 'vecake'
-          - 'gauge'
+          - 'explorer.pancakeswap.com'
+          - 'pcs_farms.py'
+          - 'pancakeswap.finance/farms'
       - type: contains-any
         value:
-          - 'boost'
-          - 'bCAKE'
-          - 'revenue'
-          - 'voting'
+          - 'APR'
+          - 'APY'
+          - 'apr'
+      - type: contains
+        value: 'pancakeswap.finance'
+
+  # Test 4: Unstaking LP tokens
+  - vars:
+      case_content: file://cases/unstake-lp.md
+    assert:
+      - type: llm-rubric
+        value: file://rubrics/farming-correctness.txt
+        threshold: 0.85
+        provider: anthropic:claude-sonnet-4-5-20250929
+      - type: contains-any
+        value:
+          - 'pancakeswap.finance/farms'
+          - 'withdraw'
+          - 'unstake'
+      - type: contains-any
+        value:
+          - '0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652'
+          - 'MasterChef'
+          - 'pancakeswap.finance/farms'
+
+  # Test 5: Harvest rewards (V2, V3, Infinity)
+  - vars:
+      case_content: file://cases/harvest-rewards.md
+    assert:
+      - type: llm-rubric
+        value: file://rubrics/farming-correctness.txt
+        threshold: 0.85
+        provider: anthropic:claude-sonnet-4-5-20250929
+      - type: contains-any
+        value:
+          - 'pendingCake'
+          - 'harvest'
+          - 'pancakeswap.finance/farms'
+      - type: contains-any
+        value:
+          - '0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652'
+          - '0x556B9306565093C855AEA9AE92A594704c2Cd59e'
+          - '0xEA8620aAb2F07a0ae710442590D649ADE8440877'
+          - 'MasterChef'
+          - 'Distributor'
+
+  # Test 6: Multi-chain farming on Base
+  - vars:
+      case_content: file://cases/multichain-base-farming.md
+    assert:
+      - type: llm-rubric
+        value: file://rubrics/farming-correctness.txt
+        threshold: 0.85
+        provider: anthropic:claude-sonnet-4-5-20250929
+      - type: contains-any
+        value:
+          - 'chain=base'
+          - 'Base'
+          - 'base'
+      - type: contains-any
+        value:
+          - '0x4200000000000000000000000000000000000006'
+          - '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+          - 'WETH'
+          - 'USDC'
+      - type: contains
+        value: 'pancakeswap.finance'
+
+  # Test 7: Stablecoin farming (low risk)
+  - vars:
+      case_content: file://cases/stablecoin-farming.md
+    assert:
+      - type: llm-rubric
+        value: file://rubrics/farming-correctness.txt
+        threshold: 0.85
+        provider: anthropic:claude-sonnet-4-5-20250929
+      - type: contains-any
+        value:
+          - 'StableSwap'
+          - 'stable'
+          - 'USDT'
+          - 'USDC'
+      - type: contains-any
+        value:
+          - 'pancakeswap.finance/stable/add'
+          - 'pancakeswap.finance/farms'
+          - 'pancakeswap.finance/add'
+      - type: contains-any
+        value:
+          - 'impermanent loss'
+          - 'minimal risk'
+          - 'low risk'
+          - 'stablecoin'
+
+  # Test 8: Infinity farms
+  - vars:
+      case_content: file://cases/infinity-farms.md
+    assert:
+      - type: llm-rubric
+        value: file://rubrics/farming-correctness.txt
+        threshold: 0.85
+        provider: anthropic:claude-sonnet-4-5-20250929
+      - type: contains-any
+        value:
+          - 'Infinity'
+          - 'infinity'
+      - type: contains-any
+        value:
+          - 'epoch'
+          - '8 hour'
+          - 'Merkle'
+          - 'CampaignManager'
+      - type: contains-any
+        value:
+          - 'pancakeswap.finance/liquidity/add'
+          - 'pancakeswap.finance/liquidity/pools'
+          - '0x26Bde0AC5b77b65A402778448eCac2aCaa9c9115'

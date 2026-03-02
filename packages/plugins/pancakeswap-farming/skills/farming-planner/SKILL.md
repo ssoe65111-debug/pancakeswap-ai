@@ -1,6 +1,6 @@
 ---
 name: farming-planner
-description: Plan yield farming and CAKE staking on PancakeSwap. Use when user says "farm on pancakeswap", "stake CAKE", "unstake CAKE", "stake LP", "unstake LP", "yield farming", "syrup pool", "pancakeswap farm", "earn CAKE", "farm APR", "veCAKE", "harvest rewards", "deposit LP", "withdraw LP", or describes wanting to stake, unstake, or earn yield on PancakeSwap.
+description: Plan yield farming and CAKE staking on PancakeSwap. Use when user says "farm on pancakeswap", "stake CAKE", "unstake CAKE", "stake LP", "unstake LP", "yield farming", "syrup pool", "pancakeswap farm", "earn CAKE", "farm APR", "harvest rewards", "deposit LP", "withdraw LP", or describes wanting to stake, unstake, or earn yield on PancakeSwap.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(curl:*), Bash(jq:*), Bash(cast:*), Bash(python3:*), Bash(node:*), Bash(xdg-open:*), Bash(open:*), WebFetch, WebSearch, Task(subagent_type:Explore), AskUserQuestion
 model: sonnet
 license: MIT
@@ -28,15 +28,13 @@ Route to the correct section based on what the user wants:
 | "unstake LP" / "withdraw LP from farm"          | Unstake LP Tokens     | Deep link + cast examples        |
 | "stake CAKE" / "syrup pool"                     | Stake CAKE            | Deep link to Syrup Pools         |
 | "harvest" / "claim rewards" / "pending rewards" | Harvest Rewards       | cast command + deep link         |
-| "veCAKE" / "boost" / "gauge voting"             | veCAKE & Gauge Voting | Deep link to cake-staking        |
 
 | User Wants...                  | Best Recommendation                                |
 | ------------------------------ | -------------------------------------------------- |
-| Passive CAKE yield, no IL      | CAKE staking (Syrup Pool) or veCAKE lock           |
-| Highest APR, willing to manage | V3 Farm with tight range + bCAKE boost             |
+| Passive CAKE yield, no IL      | CAKE staking (Syrup Pool)                          |
+| Highest APR, willing to manage | V3 Farm with tight range                           |
 | Set-and-forget farming         | V2 Farm (full range, no rebalancing needed)        |
 | Earn partner tokens            | Syrup Pools                                        |
-| Governance + revenue share     | veCAKE lock + gauge voting                         |
 | Stablecoin yield, minimal risk | USDT-USDC StableSwap LP farm                       |
 
 ---
@@ -146,8 +144,7 @@ For Infinity, you need the `poolId` (bytes32 hash) from the CampaignManager cont
 | V3 Farms              | `https://pancakeswap.finance/farms?chain=bsc&type=v3`        |
 | Infinity Farms        | `https://pancakeswap.finance/liquidity/pools?type=1`         |
 | Syrup Pools           | `https://pancakeswap.finance/pools`                          |
-| CAKE Staking / veCAKE | `https://pancakeswap.finance/cake-staking`                   |
-| Gauge Voting          | `https://pancakeswap.finance/gauges-voting`                  |
+| CAKE Staking          | `https://pancakeswap.finance/cake-staking`                   |
 
 ### Chain Keys
 
@@ -179,9 +176,6 @@ Or use the farms page with search: `https://pancakeswap.finance/farms?chain=bsc&
 | Distributor         | `0xEA8620aAb2F07a0ae710442590D649ADE8440877` | Infinity farm CAKE reward claims   |
 | CAKE Token          | `0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82` | CAKE ERC-20 token                  |
 | PositionManager v3  | `0x46A15B0b27311cedF172AB29E4f4766fbE7F4364` | V3 NFT position manager            |
-| veCAKE              | `0x5692DB8177a81A6c6afc8084C2976C9933EC1bAB` | Vote-escrowed CAKE                 |
-| GaugeVoting         | `0xf81953dC234cdEf1D6D0d3ef61b232C6bCbF9aeF` | Gauge vote allocation              |
-| RevenueSharingGateway | `0x011f2a82846a4E9c62C2FC4Fd6fDbad19147D94A` | Unified claiming gateway         |
 
 ---
 
@@ -197,9 +191,17 @@ You MUST follow the exact two-step process below. Do NOT improvise.
 
 **Step 1 — Create the script file (run this FIRST, exactly as-is):**
 
+The script fetches LP fee APR from the Explorer API and calculates **CAKE Yield APR** on-chain by querying MasterChef v3 (`latestPeriodCakePerSecond`, `v3PoolAddressPid`, `poolInfo`) via batched JSON-RPC calls. For Infinity farms, it fetches campaign data from `https://infinity.pancakeswap.com/farms/campaigns/{chainId}/false` and calculates yield as `Σ (totalRewardAmount / 1e18 / duration * SECONDS_PER_YEAR)`. It requires the `requests` library (auto-installs if missing).
+
 ```bash
 cat > /tmp/pcs_farms.py << 'PYEOF'
-import json, sys, os
+import json, sys, os, time
+try:
+    import requests
+except ImportError:
+    import subprocess
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-q', 'requests'])
+    import requests
 CHAIN_FILTER = os.environ.get('CHAIN_FILTER', '')
 PROTOCOL_FILTER = os.environ.get('PROTOCOL_FILTER', '')
 MIN_TVL = float(os.environ.get('MIN_TVL', '10000'))
@@ -211,7 +213,119 @@ NATIVE_TO_WRAPPED = {
     8453:  '0x4200000000000000000000000000000000000006',
     324:   '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
 }
+MASTERCHEF_V3 = {
+    56:    '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
+    1:     '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
+    42161: '0x5e09ACf80C0296740eC5d6F643005a4ef8DaA694',
+    8453:  '0xC6A2Db661D5a5690172d8eB0a7DEA2d3008665A3',
+    324:   '0x4c615E78c5fCA1Ad31e4d66eb0D8688d84307463',
+}
+RPC_URLS = {
+    56:    'https://bsc-rpc.publicnode.com',
+    1:     'https://ethereum-rpc.publicnode.com',
+    42161: 'https://arbitrum-one-rpc.publicnode.com',
+    8453:  'https://base-rpc.publicnode.com',
+    324:   'https://zksync-era-rpc.publicnode.com',
+}
 ZERO_ADDR = '0x0000000000000000000000000000000000000000'
+BATCH_CHUNK = 8
+SIG_CAKE_PER_SEC  = '0xc4f6a8ce'
+SIG_TOTAL_ALLOC   = '0x17caf6f1'
+SIG_POOL_ADDR_PID = '0x0743384d'
+SIG_POOL_INFO     = '0x1526fe27'
+def _rpc_batch(rpc, batch, retries=2):
+    for attempt in range(retries + 1):
+        try:
+            resp = requests.post(rpc, json=batch, timeout=15)
+            raw = resp.json()
+            if isinstance(raw, dict):
+                if attempt < retries:
+                    time.sleep(1.0 * (attempt + 1))
+                    continue
+                return [{'result': '0x'}] * len(batch)
+            has_err = any(r.get('error', {}).get('code') in (-32016, -32014) for r in raw)
+            if has_err and attempt < retries:
+                time.sleep(1.0 * (attempt + 1))
+                continue
+            return raw
+        except Exception:
+            if attempt < retries:
+                time.sleep(1.0 * (attempt + 1))
+            else:
+                return [{'result': '0x'}] * len(batch)
+    return [{'result': '0x'}] * len(batch)
+def eth_call_batch(rpc, calls):
+    if not calls:
+        return []
+    all_results = [None] * len(calls)
+    for cs in range(0, len(calls), BATCH_CHUNK):
+        chunk = calls[cs:cs + BATCH_CHUNK]
+        batch = [{'jsonrpc': '2.0', 'id': i, 'method': 'eth_call',
+                  'params': [{'to': to, 'data': data}, 'latest']}
+                 for i, (to, data) in enumerate(chunk)]
+        raw = _rpc_batch(rpc, batch)
+        if isinstance(raw, list):
+            raw.sort(key=lambda r: r.get('id', 0))
+            for i, r in enumerate(raw):
+                all_results[cs + i] = r.get('result', '0x')
+        else:
+            for i in range(len(chunk)):
+                all_results[cs + i] = '0x'
+        if cs + BATCH_CHUNK < len(calls):
+            time.sleep(0.3)
+    return all_results
+def decode_uint(h):
+    if not h or h == '0x': return 0
+    return int(h, 16)
+def pad_address(addr):
+    return addr.lower().replace('0x', '').zfill(64)
+def pad_uint(val):
+    return hex(val).replace('0x', '').zfill(64)
+def get_cake_price():
+    try:
+        r = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=pancakeswap-token&vs_currencies=usd', timeout=5)
+        return r.json().get('pancakeswap-token', {}).get('usd', 0)
+    except Exception:
+        return 0
+def get_v3_cake_data(chain_id, pool_addresses):
+    mc = MASTERCHEF_V3.get(chain_id)
+    rpc = RPC_URLS.get(chain_id)
+    if not mc or not rpc or not pool_addresses:
+        return {}
+    try:
+        calls = [(mc, SIG_CAKE_PER_SEC), (mc, SIG_TOTAL_ALLOC)]
+        for a in pool_addresses:
+            calls.append((mc, SIG_POOL_ADDR_PID + pad_address(a)))
+        results = eth_call_batch(rpc, calls)
+        cake_per_sec_raw = decode_uint(results[0])
+        total_alloc = decode_uint(results[1])
+        if total_alloc == 0 or cake_per_sec_raw == 0:
+            return {}
+        cake_per_sec = cake_per_sec_raw / 1e12 / 1e18
+        pids = [decode_uint(results[2 + i]) for i in range(len(pool_addresses))]
+        time.sleep(0.5)
+        info_calls = [(mc, SIG_POOL_INFO + pad_uint(pid)) for pid in pids]
+        info_results = eth_call_batch(rpc, info_calls)
+        result = {}
+        for i, addr in enumerate(pool_addresses):
+            info_hex = info_results[i]
+            if not info_hex or info_hex == '0x' or len(info_hex) < 66:
+                result[addr.lower()] = 0
+                continue
+            alloc_point = int(info_hex[2:66], 16)
+            if len(info_hex) >= 130:
+                returned_pool = '0x' + info_hex[90:130].lower()
+                if returned_pool != addr.lower():
+                    result[addr.lower()] = 0
+                    continue
+            if alloc_point == 0:
+                result[addr.lower()] = 0
+                continue
+            pool_cake_per_sec = cake_per_sec * (alloc_point / total_alloc)
+            result[addr.lower()] = pool_cake_per_sec * 31_536_000
+        return result
+    except Exception:
+        return {}
 def token_addr(token, chain_id):
     addr = token['id']
     if addr == ZERO_ADDR:
@@ -247,25 +361,67 @@ if PROTOCOL_FILTER:
     pools = [p for p in pools if p['protocol'].lower() in protos]
 pools = [p for p in pools if float(p.get('tvlUSD', 0) or 0) >= MIN_TVL]
 pools.sort(key=lambda p: float(p.get('apr24h', 0) or 0), reverse=True)
-print('| Pair | APR (24h) | TVL | Protocol | Chain | Deep Link |')
-print('|------|-----------|-----|----------|-------|-----------|')
-for p in pools[:20]:
+top_pools = pools[:20]
+cake_price = get_cake_price()
+v3_pools_by_chain = {}
+for p in top_pools:
+    if p['protocol'] == 'v3':
+        cid = p['chainId']
+        v3_pools_by_chain.setdefault(cid, []).append(p['id'])
+yearly_cake_map = {}
+for cid, addrs in v3_pools_by_chain.items():
+    yearly_cake_map.update(get_v3_cake_data(cid, addrs))
+SECONDS_PER_YEAR = 31_536_000
+inf_chains = set()
+for p in top_pools:
+    if p['protocol'] in ('infinityCl', 'infinityBin'):
+        inf_chains.add(p['chainId'])
+for cid in inf_chains:
+    try:
+        r = requests.get(
+            f'https://infinity.pancakeswap.com/farms/campaigns/{cid}/false?limit=100&page=1',
+            timeout=10)
+        campaigns = r.json().get('campaigns', [])
+        for c in campaigns:
+            pid = c['poolId'].lower()
+            reward_raw = int(c.get('totalRewardAmount', 0))
+            duration = int(c.get('duration', 0))
+            if duration <= 0 or reward_raw <= 0:
+                continue
+            yearly_reward = (reward_raw / 1e18) / duration * SECONDS_PER_YEAR
+            yearly_cake_map[pid] = yearly_cake_map.get(pid, 0) + yearly_reward
+    except Exception:
+        pass
+print('| Pair | LP Fee APR | CAKE APR | Total APR | TVL | Protocol | Chain | Deep Link |')
+print('|------|-----------|----------|-----------|-----|----------|-------|-----------|')
+for p in top_pools:
     t0sym = p['token0']['symbol']
     t1sym = p['token1']['symbol']
     pair = f'{t0sym}/{t1sym}'
-    apr_raw = float(p.get('apr24h', 0) or 0)
-    apr = f'{apr_raw * 100:.1f}%'
-    tvl = f"${int(float(p.get('tvlUSD', 0))):,}"
+    lp_fee_apr = float(p.get('apr24h', 0) or 0) * 100
+    tvl = float(p.get('tvlUSD', 0) or 0)
+    tvl_str = f"${int(tvl):,}"
     proto = p['protocol']
     chain_key = CHAIN_ID_TO_KEY.get(p['chainId'], '?')
+    cake_apr = 0.0
+    pool_addr = p['id'].lower()
+    is_farm = proto == 'v3' or proto in ('infinityCl', 'infinityBin')
+    if is_farm and pool_addr in yearly_cake_map and tvl > 0 and cake_price > 0:
+        cake_apr = (yearly_cake_map[pool_addr] * cake_price) / tvl * 100
+    total_apr = lp_fee_apr + cake_apr
+    lp_str = f'{lp_fee_apr:.1f}%'
+    cake_str = f'{cake_apr:.1f}%' if cake_apr > 0 else '-'
+    total_str = f'{total_apr:.1f}%'
     link = build_link(p)
-    print(f'| {pair} | {apr} | {tvl} | {proto} | {chain_key} | {link} |')
+    print(f'| {pair} | {lp_str} | {cake_str} | {total_str} | {tvl_str} | {proto} | {chain_key} | {link} |')
 PYEOF
 ```
 
 **Step 2 — Run the query (pick ONE line based on the target chain):**
 
 The API URL supports these query params: `protocols` (v2, v3, stable, infinityBin, infinityCl) and `chains` (bsc, ethereum, base, arbitrum, zksync, opbnb, linea, monad).
+
+The script calculates CAKE Yield APR on-chain for V3 farms and via the Infinity campaigns API for infinityCl/infinityBin pools. For V2/stable pools, only LP Fee APR is shown (CAKE column shows `-`).
 
 ```bash
 # All chains, all protocols (default):
@@ -287,11 +443,23 @@ export CHAIN_FILTER=arb && curl -s "https://explorer.pancakeswap.com/api/cached/
 export MIN_TVL=1000 && curl -s "https://explorer.pancakeswap.com/api/cached/pools/farming?protocols=v2&protocols=v3&protocols=stable&protocols=infinityBin&protocols=infinityCl&chains=bsc" | python3 /tmp/pcs_farms.py
 ```
 
-The output is a ready-to-use markdown table with deep links per row. Copy it directly into your response.
+The output is a ready-to-use markdown table with LP Fee APR, CAKE APR, and Total APR columns, plus deep links per row. Copy it directly into your response.
 
-### Method B: On-chain via CampaignManager (Infinity farms)
+### Method B: Infinity campaigns API + on-chain CampaignManager
 
-Use when you specifically need Infinity farm details:
+**Preferred: REST API** — the farm discovery script (Method A) already uses this to calculate Infinity CAKE APR automatically:
+
+```
+GET https://infinity.pancakeswap.com/farms/campaigns/{chainId}/false?limit=100&page=1
+```
+
+Response: `{ "campaigns": [{ "campaignId", "poolId", "totalRewardAmount", "duration", "rewardToken", "startTime", "epochEndTimestamp", "status" }] }`
+
+**CAKE Yield APR for Infinity farms** = `Σ (totalRewardAmount / 1e18 / duration * 31_536_000 * cakePrice) / poolTVL * 100`
+
+When multiple campaigns target the same `poolId`, sum their yearly rewards before dividing by TVL.
+
+**Alternative: On-chain via CampaignManager** — use when you specifically need raw on-chain data:
 
 ```bash
 cast call 0x26Bde0AC5b77b65A402778448eCac2aCaa9c9115 \
@@ -545,35 +713,6 @@ https://pancakeswap.finance/farms?chain=bsc
 
 ---
 
-## veCAKE & Gauge Voting
-
-Users lock CAKE for a period to receive veCAKE, which grants:
-- **Gauge voting power** — direct CAKE emissions to preferred farms
-- **Revenue sharing** — earn a portion of PancakeSwap protocol revenue
-- **bCAKE boost** — up to 2.5x multiplier on farm APR
-
-### Deep Links
-
-```
-# Lock CAKE for veCAKE
-https://pancakeswap.finance/cake-staking
-
-# Gauge voting
-https://pancakeswap.finance/gauges-voting
-```
-
-### bCAKE Farm Boost
-
-| veCAKE Holding | Typical Boost | Notes                   |
-| -------------- | ------------- | ----------------------- |
-| Small (<100)   | 1.0x–1.2x    | Minimal boost           |
-| Medium (1K+)   | 1.2x–1.8x    | Noticeable APR increase |
-| Large (10K+)   | 1.8x–2.5x    | Near-maximum boost      |
-
-Maximum boost: 2.5x for V2 farms, 2.0x for V3 positions.
-
----
-
 ## Output Templates
 
 ::: danger MANDATORY OUTPUT RULE
@@ -600,13 +739,12 @@ Use this format when listing multiple farms. The **Deep Link** column is mandato
 **Strategy:** Stake WBNB-CAKE LP in V3 Farm
 **Chain:** BNB Smart Chain
 **Pool:** WBNB / CAKE (0.25% fee tier)
-**Farm APR:** ~45% (base) + up to 2x with bCAKE boost
+**Farm APR:** ~45%
 **Reward:** CAKE
 
 ### Steps
 1. Add liquidity: https://pancakeswap.finance/add/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82/2500?chain=bsc&persistChain=1
 2. Stake in farm: https://pancakeswap.finance/farms?chain=bsc&type=v3
-3. (Optional) Lock CAKE for bCAKE boost: https://pancakeswap.finance/cake-staking
 
 ### Risks
 - Impermanent loss if BNB/CAKE price ratio changes significantly
@@ -637,7 +775,6 @@ Use this format when listing multiple farms. The **Deep Link** column is mandato
 | V3 Farms       | V3           | Stake V3 NFT positions in MasterChef v3, earn CAKE per block  | CAKE    |
 | Infinity Farms | Infinity     | Provide liquidity, CAKE allocated per epoch (8h) via Merkle   | CAKE    |
 | Syrup Pools    | —            | Stake CAKE to earn partner tokens or more CAKE                | Various |
-| veCAKE Staking | —            | Lock CAKE for veCAKE, earn revenue share + gauge voting power | CAKE    |
 
 ## Supported Chains
 

@@ -37,16 +37,13 @@ Ensuring hooks properly settle all deltas with `vault.take()` and `vault.settle(
 - `ownerOnly` — admin functions
 - Time-locked operations for governance
 
-### 7. veCAKE Integration
-Using governance weight in hooks — veCAKE balance checks for fee discounts or access gating.
-
-### 8. Gas Budgeting
+### 7. Gas Budgeting
 Per-callback gas limits to prevent griefing attacks where a hook consumes excessive gas.
 
-### 9. Audit Checklist
+### 8. Audit Checklist
 Step-by-step review checklist for pre-deployment security review.
 
-### 10. Base Templates
+### 9. Base Templates
 Starter Solidity contracts for both CL and Bin pool hooks with security best practices built in.
 
 ## Example: CL Pool Hook

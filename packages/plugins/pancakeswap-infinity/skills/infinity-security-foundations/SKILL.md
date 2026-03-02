@@ -36,8 +36,6 @@ A comprehensive security guide for developing hooks on PancakeSwap Infinity. Thi
 11. [Gas Budget Guidelines](#gas-budget-guidelines)
 12. [Risk Scoring System](#risk-scoring-system)
 13. [Bin Pool Considerations](#bin-pool-considerations)
-14. [veCAKE-Gated Hooks](#vecake-gated-hooks)
-
 ---
 
 ## Architecture Overview
@@ -1072,71 +1070,6 @@ If bridging CL hooks to Bin:
 
 ---
 
-## veCAKE-Gated Hooks
-
-PancakeSwap Infinity supports governance-based access control via veCAKE (vote-escrowed CAKE):
-
-### Use Case
-
-Restrict advanced hook functionality to veCAKE holders:
-
-```solidity
-import {CLBaseHook} from "infinity-hooks/src/pool-cl/CLBaseHook.sol";
-import {IveCAKE} from "interfaces/IveCAKE.sol"; // PancakeSwap veCAKE contract
-
-contract VeCAKEGatedHook is CLBaseHook {
-    IveCAKE public constant veCake = IveCAKE(0x...); // PancakeSwap veCAKE
-    uint256 public constant MIN_VE_CAKE = 1000 * 10**18; // 1000 veCAKE minimum
-
-    constructor(ICLPoolManager _poolManager, IVault _vault)
-        CLBaseHook(_poolManager, _vault)
-    {}
-
-    function beforeSwap(
-        address sender,
-        PoolKey calldata key,
-        ICLPoolManager.SwapParams calldata params,
-        bytes calldata data
-    )
-        external
-        override
-        onlyPoolManager
-        returns (bytes4, BeforeSwapDelta, uint24)
-    {
-        // Restrict to veCAKE holders
-        uint256 veCakeBalance = veCake.balanceOf(sender);
-        require(veCakeBalance >= MIN_VE_CAKE, "Insufficient veCAKE");
-
-        // Premium pricing for veCAKE holders?
-        // Or premium functionality?
-
-        return (this.beforeSwap.selector, BeforeSwapDelta.wrap(0), 0);
-    }
-}
-```
-
-### Security Considerations
-
-1. **Balance Check Timing**: Check veCAKE balance in callback (trusted context)
-2. **Flash Loan Safety**: veCAKE typically non-transferable, but verify
-3. **Governance Integration**: Hooks may be upgraded via CAKE governance
-4. **Admin Keys**: Avoid if possible; prefer immutable gate addresses
-
-### Testing veCAKE-Gated Hooks
-
-```solidity
-// In tests
-uint256 veCakeForkBlock = 18000000; // Block where veCAKE is deployed
-vm.createSelectFork("bsc", veCakeForkBlock);
-
-address userWithVeCAKE = 0x...; // Holder address
-uint256 veCakeBalance = IveCAKE(VECAKE).balanceOf(userWithVeCAKE);
-assertTrue(veCakeBalance >= 1000e18);
-
-// Simulate hook call
-vm.prank(userWithVeCAKE);
-hook.beforeSwap(...); // Should succeed
-```
 
 ---
 

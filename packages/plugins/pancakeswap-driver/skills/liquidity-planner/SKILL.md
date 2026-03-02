@@ -473,7 +473,6 @@ https://pancakeswap.finance/add/0x55d398326f99059fF775485246999027B3197955/0x8AC
 
 Users can also **stake CAKE tokens and LP positions for additional rewards**:
 
-- **veCAKE**: Vote-escrowed CAKE for boosted yields and governance
 - **MasterChef V3**: Stake LP positions in V3 pools to earn CAKE rewards
 - **Yield farming**: Many pools offer 10%–50%+ APY from farming alone
 
