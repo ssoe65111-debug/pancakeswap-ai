@@ -88,10 +88,10 @@ When PCSX is relevant, include in the output:
 | Ethereum           | 1        | `eth`         | ETH          | Crypto       | `https://cloudflare-eth.com`           |
 | Arbitrum One       | 42161    | `arb`         | ETH          | Crypto       | `https://arb1.arbitrum.io/rpc`         |
 | Base               | 8453     | `base`        | ETH          | —            | `https://mainnet.base.org`             |
-| Polygon            | 137      | `polygon`     | MATIC        | —            | `https://polygon-rpc.com`              |
 | zkSync Era         | 324      | `zksync`      | ETH          | —            | `https://mainnet.era.zksync.io`        |
 | Linea              | 59144    | `linea`       | ETH          | —            | `https://rpc.linea.build`              |
 | opBNB              | 204      | `opbnb`       | BNB          | —            | `https://opbnb-mainnet-rpc.bnbchain.org` |
+| Monad              | 143      | `monad`       | MON          | —            | `https://rpc.monad.xyz`                  |
 
 ## Step 0: Token Discovery (when the token is unknown)
 
@@ -103,7 +103,7 @@ If the user describes a token by name, description, or partial symbol rather tha
 # Search by keyword — returns pairs across all DEXes
 # Use single quotes for KEYWORD to prevent shell injection
 KEYWORD='pepe'
-CHAIN="bsc"   # use the DexScreener chainId: bsc, ethereum, arbitrum, base, polygon
+CHAIN="bsc"   # use the DexScreener chainId: bsc, ethereum, arbitrum, base, monad
 
 curl -s -G "https://api.dexscreener.com/latest/dex/search" --data-urlencode "q=$KEYWORD" | \
   jq --arg chain "$CHAIN" '[
@@ -131,9 +131,9 @@ curl -s -G "https://api.dexscreener.com/latest/dex/search" --data-urlencode "q=$
 | Ethereum           | `ethereum`            |
 | Arbitrum One       | `arbitrum`            |
 | Base               | `base`                |
-| Polygon            | `polygon`             |
 | zkSync Era         | `zksync`              |
 | Linea              | `linea`               |
+| Monad              | `monad`               |
 
 ### C. PancakeSwap Token List (Official Tokens)
 
@@ -189,8 +189,8 @@ Optional but useful:
 | ------- | ------ | --------- |
 | BSC     | BNB    | `BNB`     |
 | ETH     | ETH    | `ETH`     |
-| Polygon | MATIC  | `MATIC`   |
 | opBNB   | BNB    | `BNB`     |
+| Monad   | MON    | `MON`     |
 
 ### Common Token Addresses by Chain
 
@@ -222,6 +222,12 @@ Optional but useful:
 | WETH   | `0x82aF49447D8a07e3bd95BD0d56f35241523fBab1` | 18       |
 | USDC   | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | 6        |
 | USDT   | `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9` | 6        |
+
+**Monad (Chain ID: 143)**
+
+| Symbol | Address                                      | Decimals |
+| ------ | -------------------------------------------- | -------- |
+| WMON   | `0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A` | 18       |
 
 > **Decimals matter for display only** — the URL always uses human-readable amounts (e.g., `0.5`, not `500000000000000000`).
 
@@ -336,7 +342,7 @@ https://pancakeswap.finance/swap
 | Parameter        | Required | Description                                       | Example Value                                  |
 | ---------------- | -------- | ------------------------------------------------- | ---------------------------------------------- |
 | `chain`          | Yes      | Chain key (see Supported Chains table)            | `bsc`, `eth`, `arb`, `base`                    |
-| `inputCurrency`  | Yes      | Input token address, or native symbol             | `BNB`, `ETH`, `MATIC`, `0x55d398...`           |
+| `inputCurrency`  | Yes      | Input token address, or native symbol             | `BNB`, `ETH`, `MON`, `0x55d398...`             |
 | `outputCurrency` | Yes      | Output token address, or native symbol            | `0x0E09FaBB...`, `ETH`                         |
 | `exactAmount`    | No       | Amount in human-readable units (not wei)          | `0.5`, `100`, `1000`                           |
 | `exactField`     | No       | `"input"` (selling exact amount) or `"output"` (buying exact amount) | `input`           |
@@ -375,15 +381,15 @@ const CHAIN_KEYS: Record<number, string> = {
   1:     'eth',
   42161: 'arb',
   8453:  'base',
-  137:   'polygon',
   324:   'zksync',
   59144: 'linea',
   204:   'opbnb',
+  143:   'monad',
 }
 
 function buildPancakeSwapLink(params: {
   chainId: number
-  inputCurrency: string   // address or native symbol (BNB/ETH/MATIC)
+  inputCurrency: string   // address or native symbol (BNB/ETH/MON)
   outputCurrency: string  // address or native symbol
   exactAmount?: string    // human-readable, e.g. "0.5"
   exactField?: 'input' | 'output'
