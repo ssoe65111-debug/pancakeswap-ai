@@ -45,7 +45,6 @@ export default defineConfig({
           items: [
             { text: 'Overview', link: '/plugins/' },
             { text: 'pancakeswap-driver', link: '/plugins/pancakeswap-driver' },
-            { text: 'pancakeswap-infinity', link: '/plugins/pancakeswap-infinity' },
             { text: 'pancakeswap-farming', link: '/plugins/pancakeswap-farming' },
           ],
         },
@@ -57,7 +56,6 @@ export default defineConfig({
             { text: 'Overview', link: '/skills/' },
             { text: 'swap-planner', link: '/skills/swap-planner' },
             { text: 'liquidity-planner', link: '/skills/liquidity-planner' },
-            { text: 'infinity-security-foundations', link: '/skills/infinity-security-foundations' },
             { text: 'farming-planner', link: '/skills/farming-planner' },
           ],
         },
