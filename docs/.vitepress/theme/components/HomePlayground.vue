@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const loaded = ref(false)
+</script>
+
 <template>
   <section class="pg-section">
     <div class="pg-inner">
@@ -6,11 +12,17 @@
         <p>Try PancakeSwap AI live — no setup required.</p>
       </div>
       <div class="pg-frame-wrap">
+        <div v-if="!loaded" class="pg-loader">
+          <span class="pg-spinner" />
+          <span class="pg-loader-text">Loading playground…</span>
+        </div>
         <iframe
           src="http://167.172.74.177:888/"
           title="PancakeSwap AI Playground"
           allow="clipboard-write"
           loading="lazy"
+          :class="{ 'pg-iframe--ready': loaded }"
+          @load="loaded = true"
         />
       </div>
     </div>
@@ -50,6 +62,7 @@
 }
 
 .pg-frame-wrap {
+  position: relative;
   border: 1px solid var(--vp-c-divider);
   border-radius: 12px;
   overflow: hidden;
@@ -57,11 +70,46 @@
   height: 680px;
 }
 
+.pg-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--vp-c-bg-alt);
+}
+
+.pg-loader-text {
+  font-size: 14px;
+  color: var(--vp-c-text-2);
+}
+
+.pg-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--vp-c-divider);
+  border-top-color: var(--vp-c-brand-1);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .pg-frame-wrap iframe {
   width: 100%;
   height: 100%;
   border: none;
   display: block;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pg-frame-wrap iframe.pg-iframe--ready {
+  opacity: 1;
 }
 
 @media (max-width: 768px) {
